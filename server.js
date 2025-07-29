@@ -5,16 +5,20 @@ require("dotenv").config();
 const authRoutes = require("./Routes/tokenRoutes");
 
 const app = express();
-app.use((req, res, next) => {
-  if (req.headers["x-forwarded-proto"] !== "https") {
-    return res.redirect(`https://${req.headers.host}${req.url}`);
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (req.headers["x-forwarded-proto"] !== "https") {
+//     return res.redirect(`https://${req.headers.host}${req.url}`);
+//   }
+//   next();
+// });
 
 app.use(
   cors({
-    origin: ["https://your-frontend.onrender.com", "http://localhost:5173"],
+    origin: [
+      "https://patos-backend.onrender.com",
+      "http://localhost:5173",
+      "https://patos-front-end-hcke.vercel.app",
+    ],
 
     methods: ["GET", "POST"],
   })
