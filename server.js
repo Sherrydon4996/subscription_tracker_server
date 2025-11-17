@@ -1,48 +1,32 @@
-const express = require("express");
-const cors = require("cors");
-require("dotenv").config();
-
-const authRoutes = require("./Routes/tokenRoutes");
+import express from "express";
+import cookieParser from "cookie-parser";
+import dotenv from "dotenv";
+import { PORT } from "./config/env.js";
+import authRouter from "./Routes/auth.routes.js";
+import userRouter from "./Routes/user.routes.js";
+import subscriptionRouter from "./Routes/subscription.routes.js";
+import errorMiddleware from "./middlewares/error.middleware.js";
+import { connectMongoDB } from "./config/mongose.js";
+import arcjetMiddleware from "./middlewares/arcjet.middleware.js";
+import cors from "cors";
+import workflowRouter from "./Routes/workflow.routes.js";
+dotenv.config();
 
 const app = express();
-// app.use((req, res, next) => {
-//   if (req.headers["x-forwarded-proto"] !== "https") {
-//     return res.redirect(`https://${req.headers.host}${req.url}`);
-//   }
-//   next();
-// });
 
-app.use(
-  cors({
-    origin: [
-      "https://patos-backend.onrender.com",
-      "http://localhost:5173",
-      "https://patos-front-end-hcke.vercel.app",
-    ],
-
-    methods: ["GET", "POST"],
-  })
-);
+app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
-app.use("/api", authRoutes);
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(arcjetMiddleware);
 
-const PORT = 5000;
+app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", userRouter);
+app.use("/api/v1/subscriptions", subscriptionRouter);
+app.use("/api/v1/workflows", workflowRouter);
+app.use(errorMiddleware);
 
-app.get("/", (req, res) => {
-  res.send("API server is running");
-});
-
-// Catch all other routes
-app.use((req, res) => {
-  res.status(404).json({ error: `Cannot ${req.method} ${req.url}` });
-});
-
-// Global error handler
-app.use((err, req, res, next) => {
-  console.error("Unexpected error:", err.message);
-  res.status(500).json({ error: "Something went wrong!" });
-});
-
-app.listen(PORT, () => {
-  console.log(`Server started on port ${PORT}`);
+app.listen(PORT, async () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+  await connectMongoDB();
 });
