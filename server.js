@@ -13,6 +13,7 @@ import workflowRouter from "./Routes/workflow.routes.js";
 dotenv.config();
 
 const app = express();
+app.set("view engine", "ejs");
 
 app.use(cors({ origin: "http://localhost:5173", credentials: true }));
 app.use(express.json());
@@ -25,6 +26,10 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/workflows", workflowRouter);
 app.use(errorMiddleware);
+
+app.get("/", (req, res) => {
+  res.render("index", { title: "Welcome to harrytech subscription server" });
+});
 
 app.listen(PORT, async () => {
   console.log(`Server is running on http://localhost:${PORT}`);
